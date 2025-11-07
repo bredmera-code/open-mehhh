@@ -1,0 +1,256 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Surprise Birthday</title>
+<style>
+:root{
+  --purple-1:#a78bfa;
+  --purple-2:#7c3aed;
+  --bg:#f5f3ff;
+  --accent:#6d28d9;
+  --card:#ffffff;
+  --danger:#ff6b6b;
+}
+html,body{
+  height:100%;
+  margin:0;
+  font-family:Poppins,system-ui;
+  background:linear-gradient(180deg,var(--bg),#f3e8ff);
+  color:#222;
+}
+#passwordScreen{
+  position:fixed;inset:0;display:flex;align-items:center;justify-content:center;
+  background:linear-gradient(180deg,var(--purple-1),var(--purple-2));
+  z-index:40;color:white;flex-direction:column;padding:24px;
+}
+#cakeGif{width:150px;border-radius:16px;box-shadow:0 12px 30px rgba(0,0,0,0.18);}
+.input-display{
+  width:220px;height:44px;border-radius:999px;border:none;text-align:center;
+  font-size:22px;letter-spacing:2px;background:rgba(255,255,255,0.18);color:white;margin-top:14px;
+}
+.pad{display:grid;grid-template-columns:repeat(3,76px);gap:12px;margin-top:18px;justify-content:center;}
+.num{
+  width:76px;height:76px;border-radius:50%;background:rgba(255,255,255,0.12);
+  border:2px solid rgba(255,255,255,0.16);color:white;font-size:24px;cursor:pointer;
+  display:flex;align-items:center;justify-content:center;transition:all .14s;
+}
+.num:active{transform:scale(.96);background:rgba(255,255,255,0.24);}
+.num.alt{background:rgba(0,0,0,0.12);color:white;}
+.hint-row{display:flex;gap:10px;align-items:center;margin-top:12px;}
+.hint-icon{width:36px;height:36px;border-radius:50%;background:rgba(255,255,255,0.12);display:flex;align-items:center;justify-content:center;cursor:pointer;border:1px solid rgba(255,255,255,0.16);}
+.hint-text{margin-top:10px;color:rgba(255,255,255,0.95);display:none;font-size:15px;padding:8px 12px;border-radius:10px;background:rgba(0,0,0,0.08);}
+.wrong-banner{position:fixed;top:18px;left:50%;transform:translateX(-50%);background:rgba(255,255,255,0.12);color:var(--danger);padding:10px 16px;border-radius:10px;border:1px solid rgba(255,255,255,0.16);display:none;font-weight:700;z-index:60;}
+#main{display:none;padding:32px;position:relative;min-height:100vh;box-sizing:border-box;}
+header{display:flex;align-items:center;gap:16px;justify-content:center;margin-top:6vh;}
+.logo{width:84px;height:84px;border-radius:18px;background:linear-gradient(135deg,#d6bcfa,#c4b5fd);display:flex;align-items:center;justify-content:center;font-weight:700;color:#fff;font-size:28px;box-shadow:0 12px 30px rgba(124,58,237,0.12);}
+h1{margin:0;color:var(--accent);font-size:28px;}
+.three-images{display:flex;gap:18px;justify-content:center;margin-top:28px;flex-wrap:wrap;}
+.main-thumb{width:220px;height:150px;object-fit:cover;border-radius:16px;box-shadow:0 10px 30px rgba(99,102,241,0.12);cursor:pointer;border:6px solid rgba(255,255,255,0.7);transition:transform .22s ease;}
+.main-thumb:hover{transform:translateY(-6px) scale(1.02);}
+.card{max-width:680px;margin:30px auto;background:var(--card);border-radius:18px;padding:20px;box-shadow:0 10px 30px rgba(99,102,241,0.06);color:var(--accent);min-height:90px;text-align:center;}
+.popup{
+  display:none;position:fixed;top:0;left:0;width:100%;height:100%;
+  background:rgba(255,255,255,0.3);backdrop-filter:blur(8px);z-index:999;
+  justify-content:center;align-items:center;
+}
+.popup-content{
+  background:#fff6f3;border-radius:20px;padding:25px;text-align:center;
+  box-shadow:0 4px 20px rgba(0,0,0,0.1);width:90%;max-width:420px;position:relative;
+  animation:popupIn 0.4s ease;
+}
+@keyframes popupIn{from{transform:scale(0.8);opacity:0;}to{transform:scale(1);opacity:1;}}
+.close{position:absolute;top:10px;right:15px;font-size:22px;cursor:pointer;color:#d67a6e;font-weight:bold;}
+.slide{display:none;}
+.slide img{width:100%;border-radius:15px;}
+.prev,.next{
+  cursor:pointer;position:absolute;top:50%;padding:8px;color:white;font-weight:bold;
+  font-size:20px;user-select:none;background:rgba(0,0,0,0.4);
+}
+.prev{left:10px;}
+.next{right:10px;}
+.back-btn{
+  margin-top:10px;padding:8px 16px;border:none;background:#a78bfa;
+  color:white;border-radius:10px;cursor:pointer;
+}
+.popup-gallery{
+  display:flex;gap:15px;justify-content:center;flex-wrap:wrap;
+}
+.popup-gallery img{
+  width:120px;height:120px;object-fit:cover;border-radius:16px;
+  cursor:pointer;border:4px solid rgba(255,255,255,0.7);
+  box-shadow:0 5px 15px rgba(0,0,0,0.1);
+}
+#confetti {position:fixed;inset:0;pointer-events:none;z-index:9999;}
+</style>
+</head>
+<body>
+
+<div id="wrongBanner" class="wrong-banner">Salahhh la caaa masham.</div>
+
+<div id="passwordScreen">
+  <img id="cakeGif" src="https://media.giphy.com/media/l0MYt5jPR6QX5pnqM/giphy.gif" />
+  <input id="pwDisplay" class="input-display" type="text" readonly placeholder="HI! ca busukk" />
+  <div class="pad">
+    <div class="num" onclick="press('1')">1</div><div class="num" onclick="press('2')">2</div><div class="num" onclick="press('3')">3</div>
+    <div class="num" onclick="press('4')">4</div><div class="num" onclick="press('5')">5</div><div class="num" onclick="press('6')">6</div>
+    <div class="num" onclick="press('7')">7</div><div class="num" onclick="press('8')">8</div><div class="num" onclick="press('9')">9</div>
+    <div class="num alt" onclick="backspace()">⌫</div><div class="num" onclick="press('0')">0</div><div class="num alt" onclick="clearAll()">CLR</div>
+  </div>
+  <div class="hint-row"><div id="hintIcon" class="hint-icon">✨</div><div id="hintText" class="hint-text">Hint: password phone kamu 🎂</div></div>
+</div>
+
+<main id="main">
+<header>
+  <div class="logo"><img src="image1.jpg" alt="" width="70px"></div>
+  <div>
+    <h1>Selamat Hari Jadi, TNA 🎂</h1>
+    <div style="color:#6b21a8;opacity:.8;margin-top:6px;">Click the picture for more my dear esah ✨</div>
+  </div>
+</header>
+
+<section class="three-images">
+  <img src="image 2.jpg" class="main-thumb" onclick="openPopup('popup1')" />
+  <img src="image 3.jpg" class="main-thumb" onclick="openPopup('popup2b')" />
+  <img src="image 4.jpg" class="main-thumb" onclick="openPopup('popup2c')" />
+</section>
+
+<div class="card">HAPPY BIRTHDAY BUDAK CENGENG!!! 💜🎂</div>
+</main>
+
+<!-- POPUP 1 - 3 gambar -->
+<div id="popup1" class="popup">
+  <div class="popup-content">
+    <span class="close" onclick="closePopup('popup1')">&times;</span>
+    <h3>WE TOGETHER 💜</h3>
+    <div class="popup-gallery">
+      <img src="gambar 1.jpg" onclick="closePopup('popup1');openPopup('popup1a')" />
+      <img src="gambar 2.jpg" onclick="closePopup('popup1');openPopup('popup1b')" />
+      <img src="gambar 3.jpg" onclick="closePopup('popup1');openPopup('popup1c')" />
+    </div>
+  </div>
+</div>
+
+<!-- SLIDESHOW A -->
+<div id="popup1a" class="popup">
+  <div class="popup-content">
+    <span class="close" onclick="closePopup('popup1a')">&times;</span>
+    <div class="slide"><img src="gmbr1a.jpg"></div>
+    <div class="slide"><img src="gmbr1b.jpg"></div>
+    <div class="slide"><img src="gmbr1c.jpg"></div>
+    <div class="slide"><img src="gmbr1d.jpg"></div>
+    <div class="slide"><img src="gmbr1e.jpg"></div>
+    <a class="prev" onclick="plusSlides(-1,'popup1a')">&#10094;</a>
+    <a class="next" onclick="plusSlides(1,'popup1a')">&#10095;</a>
+    <button class="back-btn" onclick="closePopup('popup1a');openPopup('popup1')">Back</button>
+  </div>
+</div>
+
+<!-- SLIDESHOW B -->
+<div id="popup1b" class="popup">
+  <div class="popup-content">
+    <span class="close" onclick="closePopup('popup1b')">&times;</span>
+    <div class="slide"><img src="gmbr2a.jpg"></div>
+    <div class="slide"><img src="gmbr2b.jpg"></div>
+    <div class="slide"><img src="gmbr2c.jpg"></div>
+    <div class="slide"><img src="gmbr2d.jpg"></div>
+    <div class="slide"><img src="gmbr2e.jpg"></div>
+    <a class="prev" onclick="plusSlides(-1,'popup1b')">&#10094;</a>
+    <a class="next" onclick="plusSlides(1,'popup1b')">&#10095;</a>
+    <button class="back-btn" onclick="closePopup('popup1b');openPopup('popup1')">Back</button>
+  </div>
+</div>
+
+<!-- SLIDESHOW C -->
+<div id="popup1c" class="popup">
+  <div class="popup-content">
+    <span class="close" onclick="closePopup('popup1c')">&times;</span>
+    <div class="slide"><img src="gmbr3a.jpg"></div>
+    <a class="prev" onclick="plusSlides(-1,'popup1c')">&#10094;</a>
+    <a class="next" onclick="plusSlides(1,'popup1c')">&#10095;</a>
+    <button class="back-btn" onclick="closePopup('popup1c');openPopup('popup1')">Back</button>
+  </div>
+</div>
+
+<!-- POPUP 2B -->
+<div id="popup2b" class="popup">
+  <div class="popup-content">
+    <span class="close" onclick="closePopup('popup2b')">&times;</span>
+    <img src="image 5.jpg" style="width:100%;border-radius:15px;">
+  </div>
+</div>
+
+<!-- POPUP 2C -->
+<div id="popup2c" class="popup">
+  <div class="popup-content">
+    <span class="close" onclick="closePopup('popup2c')">&times;</span>
+    <h2>💌 Happy Birthday my bestie 💜🎂</h2>
+    <p>HAPPY BIRTHDAY ROOMMATE KESAYANGAN...jangan nangis dulu auu baca sampai habis baru nangis hehe
+        saya tak pernah cakap tapi mungkin saya hanya akan tulis sekali je kat sini yang saya SAYANG SANGAT AWAK!!
+        jangan pernah tinggalkan friendship ni tauu. Kalau awak rasa awak takde seisapa, saya ade, luk pon adee.
+        Jangan selalu sedih sedih. ALWAYS BE HAPPY TAUU. solat jangan tinggal, jaga maruah kita sebagai seorang perempuan,
+        jangan suka buat benda yang bahaya kan diri sndiri, always love yourself. Make your parents proud okay.
+        Kita naik pentas sama sama, banyak lagi tempat yang kita nak pergi travel ni. saya nak mintak maaf
+        sebab saya ade banyak salah dengan awak. It's okay not to be okay. Sometimes we need to let it out. Dont keep it alone.
+        Remember kalau tak jatuh tak pro aa kan kan kann HAGGAHAGGAH. Lepas hujan ade pelangi haaaa.
+        Im always pray for your success. I always wish you the best. Hope you will meet the right person one day
+        someone who will guide you, make you happy and treat you like a queen. No secret with each other remember?
+        soo if you think you need someone to listen im here okay. im sorry if im not the best at comforting you.
+        SOOOO LETS BE HAPPY AND ENJOYYYY!!💜</p>
+  </div>
+</div>
+
+<canvas id="confetti"></canvas>
+
+<audio id="bgMusic" src="whitehorse.mp3" loop></audio>
+
+<script>
+const PASSWORD='270506';const NAME_DISPLAY='AISHAH';let entered='';
+const pwDisplay=document.getElementById('pwDisplay');
+const wrongBanner=document.getElementById('wrongBanner');
+const hintIcon=document.getElementById('hintIcon');
+const hintText=document.getElementById('hintText');
+const music=document.getElementById('bgMusic');
+hintIcon.addEventListener('click',()=>{hintText.style.display='block';hintIcon.style.display='none';});
+function press(d){if(entered.length>=6)return;entered+=d;pwDisplay.value=NAME_DISPLAY.slice(0,entered.length);if(entered.length===6)setTimeout(check,250);}
+function backspace(){entered=entered.slice(0,-1);pwDisplay.value=NAME_DISPLAY.slice(0,entered.length);}
+function clearAll(){entered='';pwDisplay.value='';}
+function showWrong(){wrongBanner.style.display='block';setTimeout(()=>wrongBanner.style.display='none',1500);}
+function check(){if(entered===PASSWORD)unlock();else{showWrong();clearAll();}}
+function unlock(){document.getElementById('passwordScreen').style.display='none';document.getElementById('main').style.display='block';music.play();startConfetti();}
+function openPopup(id){document.getElementById(id).style.display='flex';resetSlides(id);}
+function closePopup(id){document.getElementById(id).style.display='none';}
+function resetSlides(id){
+  const slides=document.querySelectorAll(`#${id} .slide`);
+  if(slides.length>0){slides.forEach(s=>s.style.display='none');slides[0].style.display='block';}
+}
+function plusSlides(n,popupId){
+  const slides=document.querySelectorAll(`#${popupId} .slide`);
+  let current=[...slides].findIndex(s=>s.style.display==='block');
+  slides.forEach(s=>s.style.display='none');
+  current=(current+n+slides.length)%slides.length;
+  slides[current].style.display='block';
+}
+
+// Confetti 🎉
+const canvas=document.getElementById('confetti');const ctx=canvas.getContext('2d');let pieces=[];
+function resize(){canvas.width=window.innerWidth;canvas.height=window.innerHeight;}window.addEventListener('resize',resize);resize();
+function Piece(){this.x=Math.random()*canvas.width;this.y=-Math.random()*canvas.height;this.size=6+Math.random()*8;this.speed=2+Math.random()*4;this.tilt=Math.random()*Math.PI;const hue=260+Math.random()*60;this.color=`hsl(${hue},70%,60%)`;}
+function startConfetti(){pieces=Array.from({length:120},()=>new Piece());requestAnimationFrame(loop);}
+function loop(){ctx.clearRect(0,0,canvas.width,canvas.height);for(let i=0;i<pieces.length;i++){const p=pieces[i];p.y+=p.speed;p.x+=Math.sin(p.tilt)*1.5;p.tilt+=0.02;ctx.fillStyle=p.color;ctx.beginPath();ctx.ellipse(p.x,p.y,p.size,p.size*0.6,p.tilt,0,Math.PI*2);ctx.fill();if(p.y>canvas.height+30)pieces[i]=new Piece();}requestAnimationFrame(loop);}
+document.querySelectorAll('.popup').forEach(p=>resetSlides(p.id));
+</script>
+</body>
+</html>
+
+
+
+
+
+
+
+
+
+
+
